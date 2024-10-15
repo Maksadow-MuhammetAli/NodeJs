@@ -5,6 +5,8 @@ const schema = mongoose.Schema({
     is_active: {type: Boolean, default: true},
     created_by: {type: mongoose.SchemaTypes.ObjectId}
 }, {
+    toJSON: {versionKey: false},
+
     // timestamps: true => bul goni createdAt we updatedAt-i berya
     timestamps: {
         createdAt: "created_at",

@@ -69,5 +69,6 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 
+  console.log("Server is running at localhost:3000")
   new Database().connect({CONNECTION_STRING})
 }

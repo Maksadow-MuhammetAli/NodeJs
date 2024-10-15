@@ -37,7 +37,7 @@ router.post("/add", async (req, res, next) => {
     }
 })
 
-router.post("/update", async (req, res) => {
+router.put("/update", async (req, res) => {
     let body = req.body
     try {
         if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "_id field must be filled")
@@ -55,7 +55,7 @@ router.post("/update", async (req, res) => {
     }
 })
 
-router.post("/delete", async (req, res) => {
+router.delete("/delete", async (req, res) => {
     let body = req.body
 
     try {

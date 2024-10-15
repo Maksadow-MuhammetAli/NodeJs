@@ -3,8 +3,10 @@ const mongoose = require("mongoose")
 const schema = mongoose.Schema({
     role_id: {type: mongoose.SchemaTypes.ObjectId, required: true},
     permission: {type: String, required: true},
-    created_by: {type: mongoose.SchemaTypes.ObjectId, required: true}
+    created_by: {type: mongoose.SchemaTypes.ObjectId}
 }, {
+    toJSON: {versionKey: false},
+
     // timestamps: true => bul goni createdAt we updatedAt-i berya
     timestamps: {
         createdAt: "created_at",
