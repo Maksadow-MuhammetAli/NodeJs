@@ -7,6 +7,8 @@ const schema = mongoose.Schema({
     proc_type: String,
     log: String
 }, {
+    versionKey: false,
+
     // timestamps: true => bul goni createdAt we updatedAt-i berya
     timestamps: {
         createdAt: "created_at",

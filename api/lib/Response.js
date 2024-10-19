@@ -3,9 +3,18 @@ const CustomError = require("./CustomError")
 
 class Response {
     static succes(data, code = 200) {
-        return {
-            code,
-            data
+        if (typeof data === "boolean") {
+            return {
+                code,
+                data: {
+                    succes: data
+                }
+            }
+        } else {
+            return {
+                code,
+                data
+            }
         }
     }
 
