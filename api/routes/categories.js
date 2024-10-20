@@ -9,9 +9,9 @@ router.get("/", async (req, res, next) => {
     try {
         let categories = await Categories.find({})
 
-        res.json(Response.succesResponse(categories))
+        res.json(Response.succes(categories))
     } catch (error) {
-        let errorResponse = Response.errorResponse(error)
+        let errorResponse = Response.error(error)
         res.status(errorResponse.code).json(errorResponse)
     }
 })
@@ -29,10 +29,10 @@ router.post("/add", async (req, res, next) => {
 
         await category.save()
 
-        res.json(Response.succesResponse({succes: true}))
+        res.json(Response.succes({succes: true}))
 
     } catch (error) {
-        let errorResponse = Response.errorResponse(error)
+        let errorResponse = Response.error(error)
         res.status(errorResponse.code).json(errorResponse)
     }
 })
@@ -48,9 +48,9 @@ router.put("/update", async (req, res) => {
 
         await Categories.updateOne({_id: body._id}, updates)
 
-        res.json(Response.succesResponse({succes: true}))
+        res.json(Response.succes({succes: true}))
     } catch (error) {
-        let errorResponse = Response.errorResponse(error)
+        let errorResponse = Response.error(error)
         res.status(errorResponse.code).json(errorResponse)
     }
 })
@@ -63,9 +63,9 @@ router.delete("/delete", async (req, res) => {
 
         await Categories.deleteOne(({_id: body._id}))
 
-        res.json(Response.succesResponse({succes: true}))
+        res.json(Response.succes({succes: true}))
     } catch (error) {
-        let errorResponse = Response.errorResponse(error)
+        let errorResponse = Response.error(error)
         res.status(errorResponse.code).json(errorResponse)
     }
 })

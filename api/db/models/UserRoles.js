@@ -5,6 +5,7 @@ const schema = mongoose.Schema({
     user_id: {type: mongoose.SchemaTypes.ObjectId, required: true}
 }, {
     versionKey: false,
+
     // timestamps: true => bul goni createdAt we updatedAt-i berya
     timestamps: {
         createdAt: "created_at",
