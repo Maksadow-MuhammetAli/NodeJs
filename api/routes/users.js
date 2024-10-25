@@ -2,6 +2,7 @@ const express = require("express")
 const bcrypt = require("bcrypt-nodejs")
 const router = express.Router()
 const is = require("is_js")
+const jwt = require("jwt-simple")
 
 
 const Users = require("../db/models/Users")
@@ -10,6 +11,7 @@ const Roles = require("../db/models/Roles")
 const Response = require("../lib/Response")
 const CustomError = require("../lib/CustomError")
 const Enum = require("../config/Enum")
+const config = require("../config")
 
 router.get("/", async (req, res) => {
     try {
@@ -178,6 +180,39 @@ router.post("/register", async (req, res) => {
         })
 
         res.status(Enum.HTTP_CODES.CREATED).json(Response.succes(true, Enum.HTTP_CODES.CREATED))
+    } catch (error) {
+        const err = Response.error(error)
+        res.status(err.code).json(err)
+    }
+})
+
+router.post("/auth", async (req, res) => {
+    try {
+        let {email, password} = req.body
+
+        Users.validateFielsBeforeAuth(email, password)
+
+        let user = await Users.findOne({email})
+
+        if (!user) throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, "Validation Error!", "wrong email or password")
+
+        if (!user.validPassword(password)) throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, "Validation Error!", "wrong email or password")
+
+        // console.log("aaaa")
+        let payload = {
+            id: user._id,
+            exp: parseInt(Date.now() / 1000) + config.JWT.EXPIRE_TIME
+        }
+
+        let token = jwt.encode(payload, config.JWT.SECRET)
+
+        let userData = {
+            _id: user._id,
+            first_name: user.first_name,
+            last_name: user.last_name
+        }
+
+        res.json(Response.succes({token, user: userData}))
     } catch (error) {
         const err = Response.error(error)
         res.status(err.code).json(err)
