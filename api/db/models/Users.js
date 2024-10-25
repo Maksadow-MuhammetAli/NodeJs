@@ -1,4 +1,9 @@
 const mongoose = require("mongoose")
+const is = require("is_js")
+const bcrypt = require("bcrypt-nodejs")
+
+const CustomError = require("../../lib/CustomError")
+const {PASS_LENGTH, HTTP_CODES} = require("../../config/Enum")
 
 const schema = mongoose.Schema({
     email: {type: String, required: true, unique: true},
@@ -18,7 +23,14 @@ const schema = mongoose.Schema({
 })
 
 class Users extends mongoose.Model {
+    static validateFielsBeforeAuth(email, password) {
+        if (is.not.email(email)) throw new CustomError(HTTP_CODES.BAD_REQUEST, "Validation Error", "Email field must be email format")
+        if (typeof password != "string" || password.length < PASS_LENGTH) throw new CustomError(HTTP_CODES.UNAUTHORIZED, "Validation Error", "Password field wrong")
+    }
 
+    validPassword(password) {
+        return bcrypt.compareSync(password, this.password)
+    }
 }
 
 schema.loadClass(Users)
