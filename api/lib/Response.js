@@ -40,7 +40,8 @@ class Response {
                 code: Enum.HTTP_CODES.INT_SERVER_ERROR,
                 error: {
                     message: "Unknown error!",
-                    description: error.message
+                    description: error.message,
+                    error
                 }
             }
         }

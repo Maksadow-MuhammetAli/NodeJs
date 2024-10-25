@@ -19,4 +19,6 @@ class UserRoles extends mongoose.Model {
 
 schema.loadClass(UserRoles)
 
+/** @type {import("mongoose").Model} */
+
 module.exports = mongoose.model("user_roles", schema)

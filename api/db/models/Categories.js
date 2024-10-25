@@ -20,4 +20,6 @@ class Categories extends mongoose.Model {
 
 schema.loadClass(Categories)
 
+/** @type {import("mongoose").Model} */
+
 module.exports = mongoose.model("categories", schema)

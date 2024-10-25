@@ -22,4 +22,6 @@ class AuditLogs extends mongoose.Model {
 
 schema.loadClass(AuditLogs)
 
+/** @type {import("mongoose").Model} */
+
 module.exports = mongoose.model("audit_logs", schema)

@@ -35,4 +35,6 @@ class Users extends mongoose.Model {
 
 schema.loadClass(Users)
 
+/** @type {import("mongoose").Model} */
+
 module.exports = mongoose.model("users", schema)
