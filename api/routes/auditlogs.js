@@ -9,8 +9,8 @@ router.post("/", async (req, res) => {
     try {
         let body = req.body
         let query = {}
-        let limit = body.limit || 500
-        let skip = body.skip || 0
+        let limit = typeof body.limit == "number" ? body.limit : 500
+        let skip = typeof body.skip == "number" ? body.skip : 0
 
         if (body.begin_date && body.end_date) {
             query.created_at = {
