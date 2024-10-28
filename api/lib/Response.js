@@ -2,10 +2,11 @@ const Enum = require("../config/Enum")
 const CustomError = require("./CustomError")
 
 class Response {
-    static succes(data, code = 200) {
+    static succes(data, token, code = 200) {
         if (typeof data === "boolean") {
             return {
                 code,
+                token,
                 data: {
                     succes: data
                 }
@@ -13,6 +14,7 @@ class Response {
         } else {
             return {
                 code,
+                token,
                 data
             }
         }

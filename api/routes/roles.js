@@ -8,11 +8,17 @@ const Enum = require('../config/Enum');
 const roleprivileges = require('../config/Roleprivileges');
 const RolePrivileges = require("../db/models/RolePrivileges")
 
+const auth = require("../lib/auth")()
+
+router.all("*", auth.authenticate(), (req, res, next) => {
+    next()
+})
+
 router.get("/", async (req, res) => {
     try {
         const roles = await Roles.find()
 
-        res.json(Response.succes(roles))
+        res.json(Response.succes(roles, req.user.token))
     } catch (error) {
         const err = Response.error(error)
         res.status(err.code).json(err)
@@ -30,7 +36,7 @@ router.post("/add", async (req, res) => {
         const role = new Roles({
             role_name: body.role_name,
             is_active: true,
-            created_by: body.user?.id
+            created_by: req.user?.id
         })
 
         await role.save()
@@ -39,13 +45,13 @@ router.post("/add", async (req, res) => {
             let priv = new RolePrivileges({
                 role_id: role._id,
                 permission,
-                created_by: body.user?.id
+                created_by: req.user?.id
             })
 
             await priv.save()
         });
 
-        res.json(Response.succes({succes: true}))
+        res.json(Response.succes(true, req.user.token))
     } catch (error) {
         const err = Response.error(error)
         res.status(err.code).json(err)
@@ -77,7 +83,7 @@ router.put("/update", async (req, res) => {
                     let priv = new RolePrivileges({
                         role_id: body._id,
                         permission: newPermission,
-                        created_by: body.user?.id
+                        created_by: req.user?.id
                     })
 
                     await priv.save()
@@ -91,7 +97,7 @@ router.put("/update", async (req, res) => {
 
         await Roles.updateOne({_id: body._id}, update)
 
-        res.json(Response.succes({succes: true}))
+        res.json(Response.succes(true, req.user.token))
     } catch (error) {
         const err = Response.error(error)
         res.status(err.code).json(err)
@@ -105,7 +111,7 @@ router.delete("/delete", async (req, res) => {
 
         await Roles.deleteOne({_id: body._id})
 
-        res.json(Response.succes({succes: true}))
+        res.json(Response.succes(true, req.user.token))
     } catch (error) {
         const err = Response.error(error)
         res.status(err.code).json(err)

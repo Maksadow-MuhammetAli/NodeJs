@@ -4,6 +4,11 @@ const moment = require("moment")
 
 const Response = require("../lib/Response")
 const AuditLogs = require("../db/models/AuditLogs")
+const auth = require("../lib/auth")()
+
+router.all("*", auth.authenticate(), (req, res, next) => {
+    next()
+})
 
 router.post("/", async (req, res) => {
     try {
@@ -26,7 +31,7 @@ router.post("/", async (req, res) => {
 
         const auditLogs = await AuditLogs.find(query).sort({created_at: -1}).skip(skip).limit(limit)
 
-        res.json(Response.succes(auditLogs))
+        res.json(Response.succes(auditLogs, req.user.token))
 
 
     } catch (error) {
