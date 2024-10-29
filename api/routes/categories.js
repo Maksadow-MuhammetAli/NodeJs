@@ -13,7 +13,7 @@ router.all("*", auth.authenticate(), (req, res, next) => {
     next()
 })
 
-router.get("/", async (req, res, next) => {
+router.get("/", auth.checkRoles("category_view"), async (req, res, next) => {
     try {
         let categories = await Categories.find({})
 
@@ -24,7 +24,7 @@ router.get("/", async (req, res, next) => {
     }
 })
 
-router.post("/add", async (req, res, next) => {
+router.post("/add", auth.checkRoles("category_add"), async (req, res, next) => {
     let body = req.body
     try {
         if (!body.name) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "name field must be filled")
@@ -50,7 +50,7 @@ router.post("/add", async (req, res, next) => {
     }
 })
 
-router.put("/update", async (req, res) => {
+router.put("/update", auth.checkRoles("category_update"), async (req, res) => {
     let body = req.body
     try {
         if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "_id field must be filled")
@@ -70,7 +70,7 @@ router.put("/update", async (req, res) => {
     }
 })
 
-router.delete("/delete", async (req, res) => {
+router.delete("/delete", auth.checkRoles("category_delete"), async (req, res) => {
     let body = req.body
 
     try {

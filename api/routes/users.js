@@ -57,7 +57,14 @@ router.post("/register", async (req, res) => {
             user_id: createdUser._id
         })
 
-        res.status(Enum.HTTP_CODES.CREATED).json(Response.succes(true, Enum.HTTP_CODES.CREATED))
+        let payload = {
+            id: createdUser._id,
+            exp: parseInt(Date.now() / 1000) + config.JWT.EXPIRE_TIME
+        }
+
+        let token = jwt.encode(payload, config.JWT.SECRET)
+
+        res.status(Enum.HTTP_CODES.CREATED).json(Response.succes(true, token, Enum.HTTP_CODES.CREATED))
     } catch (error) {
         const err = Response.error(error)
         res.status(err.code).json(err)
@@ -101,7 +108,7 @@ router.all("*", auth.authenticate(), (req, res, next) => {
     next()
 })
 
-router.get("/", async (req, res) => {
+router.get("/", auth.checkRoles("user_view"), async (req, res) => {
     try {
         const users = await Users.find()
 
@@ -112,7 +119,7 @@ router.get("/", async (req, res) => {
     }
 })
 
-router.post("/add", async (req, res) => {
+router.post("/add", auth.checkRoles("user_add"), async (req, res) => {
     let body = req.body
     try {
         if (!body.email) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation error!", "email field must be filled")
@@ -160,7 +167,7 @@ router.post("/add", async (req, res) => {
     }
 })
 
-router.put("/update", async (req, res) => {
+router.put("/update", auth.checkRoles("user_update"), async (req, res) => {
     let body = req.body
     let updates = {}
     try {
@@ -209,7 +216,7 @@ router.put("/update", async (req, res) => {
     }
 })
 
-router.delete("/delete", async (req, res) => {
+router.delete("/delete", auth.checkRoles("user_delete"), async (req, res) => {
     let body = req.body
     try {
         if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "validation error!", "_id value must be filled")
