@@ -35,7 +35,7 @@ router.post("/", auth.checkRoles("auditlogs_view"), async (req, res) => {
 
 
     } catch (error) {
-        const err = Response.error(error)
+        const err = Response.error(error, req.user?.language)
         res.status(err.code).json(err)
     }
 })

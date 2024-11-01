@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt-nodejs")
 
 const CustomError = require("../../lib/CustomError")
 const {PASS_LENGTH, HTTP_CODES} = require("../../config/Enum")
+const config = require("../../config")
 
 const schema = mongoose.Schema({
     email: {type: String, required: true, unique: true},
@@ -11,7 +12,8 @@ const schema = mongoose.Schema({
     is_active: {type: Boolean, default: true},
     first_name: String,
     last_name: String,
-    phone_number: String
+    phone_number: String,
+    language: {type: String, default: config.DEFAULT_LANG}
 }, {
     versionKey: false,
 

@@ -41,6 +41,7 @@ module.exports = () => {
                     role_privileges: privileges,
                     first_name: user.first_name,
                     last_name: user.last_name,
+                    language: user.language,
                     token
                 })
             } else {

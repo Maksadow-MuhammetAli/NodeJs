@@ -6,7 +6,8 @@ const Roles = require("../db/models/Roles");
 const CustomError = require('../lib/CustomError');
 const Enum = require('../config/Enum');
 const roleprivileges = require("../config/RolePrivileges")
-const RolePrivileges = require("../db/models/RolePrivileges")
+const RolePrivileges = require("../db/models/RolePrivileges");
+const I18n = require('../lib/i18n');
 
 const auth = require("../lib/auth")()
 
@@ -28,9 +29,9 @@ router.get("/", auth.checkRoles("role_view"), async (req, res) => {
 router.post("/add", auth.checkRoles("role_add"), async (req, res) => {
     let body = req.body
     try {
-        if (!body.role_name) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "validation error!", "Role name must be filled")
+        if (!body.role_name) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, I18n.translate("COMMON.VALIDATION_ERROR", req.user?.language), I18n.translate("COMMON.FIELD_MUST_BE_FILLED", req.user?.language, ["role_name"]))
         if (!body.permissions || !Array.isArray(body.permissions) || body.permissions.length === 0) {
-            throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "validation error!", "permission must be array")
+            throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, I18n.translate("COMMON.VALIDATION_ERROR", req.user?.language), I18n.translate("COMMON.FIELD_MUST_BE_TYPE", req.user?.language, ["permission", "array"]))
         }
 
         const role = new Roles({
@@ -62,7 +63,7 @@ router.put("/update", auth.checkRoles("role_update"), async (req, res) => {
     let body = req.body
     let update = {}
     try {
-        if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "validation error!", "_id value must be filled")
+        if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, I18n.translate("COMMON.VALIDATION_ERROR", req.user?.language), I18n.translate("COMMON.FIELD_MUST_BE_FILLED", req.user?.language, ["_id"]))
 
         if (body.permissions && Array.isArray(body.permissions) && body.permissions.length !== 0) {
 
@@ -107,7 +108,7 @@ router.put("/update", auth.checkRoles("role_update"), async (req, res) => {
 router.delete("/delete", auth.checkRoles("role_delete"), async (req, res) => {
     let body = req.body
     try {
-        if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "validation error!", "_id value must be filled")
+        if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, I18n.translate("COMMON.VALIDATION_ERROR", req.user?.language), I18n.translate("COMMON.FIELD_MUST_BE_FILLED", req.user?.language, ["_id"]))
 
         await Roles.deleteOne({_id: body._id})
 

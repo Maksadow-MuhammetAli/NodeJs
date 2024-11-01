@@ -8,6 +8,7 @@ const AuditLogs = require("../lib/AuditLogs")
 const logger = require("../lib/logger/LoggerClass")
 
 const auth = require("../lib/auth")()
+const I18n = require("../lib/i18n")
 
 router.all("*", auth.authenticate(), (req, res, next) => {
     next()
@@ -27,7 +28,7 @@ router.get("/", auth.checkRoles("category_view"), async (req, res, next) => {
 router.post("/add", auth.checkRoles("category_add"), async (req, res, next) => {
     let body = req.body
     try {
-        if (!body.name) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "name field must be filled")
+        if (!body.name) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, I18n.translate("COMMON.VALIDATION_ERROR", req.user?.language), I18n.translate("COMMON.FIELD_MUST_BE_FILLED", req.user?.language, ["name"]))
 
         let category = new Categories({
             name: body.name,
@@ -53,7 +54,7 @@ router.post("/add", auth.checkRoles("category_add"), async (req, res, next) => {
 router.put("/update", auth.checkRoles("category_update"), async (req, res) => {
     let body = req.body
     try {
-        if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "_id field must be filled")
+        if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, I18n.translate("COMMON.VALIDATION_ERROR", req.user?.language), I18n.translate("COMMON.FIELD_MUST_BE_FILLED", req.user?.language, ["_id"]))
         let updates = {}
 
         if (body.name) updates.name = body.name
@@ -74,7 +75,7 @@ router.delete("/delete", auth.checkRoles("category_delete"), async (req, res) =>
     let body = req.body
 
     try {
-        if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "_id field must be filled")
+        if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, I18n.translate("COMMON.VALIDATION_ERROR", req.user?.language), I18n.translate("COMMON.FIELD_MUST_BE_FILLED", req.user?.language, ["_id"]))
 
         await Categories.deleteOne(({_id: body._id}))
 
