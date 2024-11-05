@@ -1,4 +1,5 @@
 const express = require("express")
+const fs = require("fs")
 const router = express.Router()
 const Categories = require("../db/models/Categories")
 const Response = require("../lib/Response")
@@ -10,6 +11,7 @@ const logger = require("../lib/logger/LoggerClass")
 const auth = require("../lib/auth")()
 const I18n = require("../lib/i18n")
 const emitter = require("../lib/Emitter")
+const Export = require("../lib/Export")
 
 router.all("*", auth.authenticate(), (req, res, next) => {
     next()
@@ -86,8 +88,30 @@ router.delete("/delete", auth.checkRoles("category_delete"), async (req, res) =>
 
         res.json(Response.succes(true, req.user.token))
     } catch (error) {
-        let errorResponse = Response.error(error)
-        res.status(errorResponse.code).json(errorResponse)
+        let err = Response.error(error)
+        res.status(err.code).json(err)
+    }
+})
+
+router.get("/export", auth.checkRoles("category_export"), async (req, res) => {
+    try {
+        const categories = await Categories.find()
+
+        let excel = Export.toExcel(["ID", "CATEGORY NAME", "IS ACTIVE", "USER ID", "CREATED AT", "UPDATED AT"], ["_id", "name", "is_active", "created_by", "created_at", "updated_at"], categories)
+
+        const filePath = `${__dirname}/../tmp/categories_excel_${Date.now()}.xlsx`
+
+        fs.writeFileSync(filePath, excel, "UTF-8")
+
+        res.download(filePath)
+
+        setTimeout(() => {
+            fs.unlinkSync(filePath)
+        }, 1000)
+
+    } catch (error) {
+        let err = Response.error(error)
+        res.status(err.code).json(err)
     }
 })
 
