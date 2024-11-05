@@ -9,6 +9,7 @@ const logger = require("../lib/logger/LoggerClass")
 
 const auth = require("../lib/auth")()
 const I18n = require("../lib/i18n")
+const emitter = require("../lib/Emitter")
 
 router.all("*", auth.authenticate(), (req, res, next) => {
     next()
@@ -40,6 +41,7 @@ router.post("/add", auth.checkRoles("category_add"), async (req, res, next) => {
 
         AuditLogs.info(req.user?.email, "Categories", "Add", category)
         logger.info(req.user?.id, "Categories", "Add", category)
+        emitter.getEmitter("notifications").emit("messages", {message: `${category.name} is added`})
 
 
         res.json(Response.succes(true, req.user.token))
