@@ -7,11 +7,26 @@ const CustomError = require("../lib/CustomError")
 const Enum = require("../config/Enum")
 const AuditLogs = require("../lib/AuditLogs")
 const logger = require("../lib/logger/LoggerClass")
-
 const auth = require("../lib/auth")()
 const I18n = require("../lib/i18n")
 const emitter = require("../lib/Emitter")
 const Export = require("../lib/Export")
+const Import = require("../lib/Import")
+const config = require("../config")
+
+const multer = require("multer")
+const path = require("path")
+
+let multerStorage = multer.diskStorage({
+    destination: (req, file, next) => {
+        next(null, config.FILE_UPLOAD_PATH)
+    },
+    filename: (req, file, next) => {
+        next(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`)
+    }
+})
+
+let upload = multer({storage: multerStorage}).single("nd_file")
 
 router.all("*", auth.authenticate(), (req, res, next) => {
     next()
@@ -110,8 +125,56 @@ router.get("/export", auth.checkRoles("category_export"), async (req, res) => {
         }, 1000)
 
     } catch (error) {
-        let err = Response.error(error)
+        let err = Response.error(error, req.user.language)
         res.status(err.code).json(err)
+    }
+})
+
+router.post("/import", auth.checkRoles("category_add"), upload, async (req, res) => {
+    try {
+        let body = req.body
+        let file = req.file
+
+        let rows = Import.fromExcel(file.path)
+
+        const filePath = `${__dirname}/../tmp/${fs.readdirSync(`${__dirname}/../tmp`)[0]}`
+
+        setTimeout(() => {
+            fs.unlinkSync(filePath)
+        }, 2000)
+
+        const categories = await Categories.find()
+        rows.forEach(async ([name, is_active], i) => {
+            if (i != 0) {
+                if (categories.length != 0) {
+                    if (!categories.map(x => x.name).includes(name)) {
+                        if (name) {
+                            await Categories.create({
+                                name,
+                                is_active,
+                                created_by: req.user.id
+                            })
+                        }
+                    } else {
+                        await Categories.updateOne({name}, {name, is_active})
+                    }
+                } else {
+
+                    await Categories.create({
+                        name,
+                        is_active,
+                        created_by: req.user.id
+                    })
+
+                }
+            }
+        })
+
+        res.status(Enum.HTTP_CODES.CREATED).json(Response.succes(true, req.user.token, Enum.HTTP_CODES.CREATED))
+
+    } catch (error) {
+        const err = Response.error(error, req.user.language)
+        res.status(err.code).json(Response.error(err, req.user.language))
     }
 })
 
