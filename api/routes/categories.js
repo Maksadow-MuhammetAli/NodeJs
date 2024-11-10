@@ -81,7 +81,7 @@ router.put("/update", auth.checkRoles("category_update"), async (req, res) => {
 
         await Categories.updateOne({_id: body._id}, updates)
 
-        AuditLogs.info(body.user?.email, "Categories", "Update", {_id: body._id, ...updates})
+        AuditLogs.info(req.user?.email, "Categories", "Update", {_id: body._id, ...updates})
 
         res.json(Response.succes(true, req.user.token))
     } catch (error) {
@@ -98,7 +98,7 @@ router.delete("/delete", auth.checkRoles("category_delete"), async (req, res) =>
 
         await Categories.deleteOne(({_id: body._id}))
 
-        AuditLogs.info(body.user?.email, "Categories", "Delete", {_id: body._id})
+        AuditLogs.info(req.user?.email, "Categories", "Delete", {_id: body._id})
 
 
         res.json(Response.succes(true, req.user.token))
