@@ -1,7 +1,8 @@
 const express = require("express")
 const bcrypt = require("bcrypt-nodejs")
 const router = express.Router()
-const is = require("is_js")
+// const is = require("is_js")
+const validator = require("validator")
 const jwt = require("jwt-simple")
 const rolePrivs = [...(require("../config/RolePrivileges").privileges)].map(x => x.key)
 
@@ -17,7 +18,7 @@ const config = require("../config")
 const auth = require("../lib/auth")()
 const I18n = require('../lib/i18n');
 
-router.post("/register", async (req, res) => {
+router.post("/register", async (req, res) => {// validator.js
     let body = req.body
     try {
 
@@ -28,7 +29,7 @@ router.post("/register", async (req, res) => {
         }
 
         if (!body.email) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, I18n.translate("COMMON.VALIDATION_ERROR", req.user?.language), I18n.translate("COMMON.FIELD_MUST_BE_FILLED", req.user?.language, ["email"]))
-        if (!is.email(body.email)) {
+        if (!validator.isEmail(body.email)) {
             throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, I18n.translate("COMMON.VALIDATION_ERROR", req.user?.language), I18n.translate("USERS.EMAIL_FORMAT_ERROR", req.user?.language))
         }
 
@@ -136,7 +137,7 @@ router.post("/add", /*auth.checkRoles("user_add"),*/ async (req, res) => {
     let body = req.body
     try {
         if (!body.email) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, I18n.translate("COMMON.VALIDATION_ERROR", req.user?.language), I18n.translate("COMMON.FIELD_MUST_BE_FILLED", req.user?.language, ["email"]))
-        if (!is.email(body.email)) {
+        if (!validator.isEmail(body.email)) {
             throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, I18n.translate("COMMON.VALIDATION_ERROR", req.user?.language), I18n.translate("USERS.EMAIL_FORMAT_ERROR", req.user?.language))
         }
 
