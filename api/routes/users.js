@@ -124,16 +124,28 @@ router.all("*", auth.authenticate(), (req, res, next) => {
 
 router.get("/", auth.checkRoles("user_view"), async (req, res) => {
     try {
-        const users = await Users.find()
+        const users = await Users.find({}, {password: 0}).lean() //= 0 => sol fieldi alma;    1 => sondan baska hic zady alma
+
+        //` users.forEach(x => x.password = "********")
+
+        for (let i = 0; i < users.length; i++) {
+            // let roles = await UserRoles.find({user_id: users[i]._id}).populate("role_id") barde referans islemleri ba
+            let userRoles = await UserRoles.find({user_id: users[i]._id})
+
+            let roles = await Roles.find({_id: {$in: userRoles.map(x => x.role_id)}})
+
+            users[i].roles = roles
+        }
 
         res.json(Response.succes(users, req.user.token))
     } catch (error) {
         const err = Response.error(error)
+        console.log(error)
         res.status(err.code).json(err)
     }
 })
 
-router.post("/add", /*auth.checkRoles("user_add"),*/ async (req, res) => {
+router.post("/add", auth.checkRoles("user_add"), async (req, res) => {
     let body = req.body
     try {
         if (!body.email) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, I18n.translate("COMMON.VALIDATION_ERROR", req.user?.language), I18n.translate("COMMON.FIELD_MUST_BE_FILLED", req.user?.language, ["email"]))
@@ -200,7 +212,7 @@ router.put("/update", auth.checkRoles("user_update"), async (req, res) => {
         if (body.last_name) updates.last_name = body.last_name
         if (body.phone_number) updates.phone_number = body.phone_number
 
-        if (body.roles || Array.isArray(body.roles) || body.roles.length > 0) {
+        if (body.roles || Array.isArray(body.roles) || body.roles?.length > 0) {
             const dbUserRoles = await UserRoles.find({user_id: body._id})
             const bodyUserRoles = body.roles
 

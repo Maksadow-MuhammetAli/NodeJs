@@ -1,5 +1,6 @@
 const mongoose = require("mongoose")
-const is = require("is_js")
+// const is = require("is_js")
+const validator = require("validator")
 const bcrypt = require("bcrypt-nodejs")
 
 const CustomError = require("../../lib/CustomError")
@@ -26,7 +27,7 @@ const schema = mongoose.Schema({
 
 class Users extends mongoose.Model {
     static validateFielsBeforeAuth(email, password) {
-        if (is.not.email(email)) throw new CustomError(HTTP_CODES.BAD_REQUEST, "Validation Error", "Email field must be email format")
+        if (!validator.isEmail(email)) throw new CustomError(HTTP_CODES.BAD_REQUEST, "Validation Error", "Email field must be email format")
         if (typeof password != "string" || password.length < PASS_LENGTH) throw new CustomError(HTTP_CODES.UNAUTHORIZED, "Validation Error", "Password field wrong")
     }
 
