@@ -18,6 +18,22 @@ const config = require("../config")
 const auth = require("../lib/auth")()
 const I18n = require('../lib/i18n');
 
+const {rateLimit} = require('express-rate-limit')
+const RateLimitMongo = require("rate-limit-mongo")
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 5, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    // standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+    store: new RateLimitMongo({
+        uri: config.CONNECTION_STRING,
+        collectionName: "rateLimits",
+        expireTime: 15 * 60 * 1000
+    })
+})
+
+
 router.post("/register", async (req, res) => {// validator.js
     let body = req.body
     try {
@@ -85,7 +101,7 @@ router.post("/register", async (req, res) => {// validator.js
     }
 })
 
-router.post("/auth", async (req, res) => {
+router.post("/auth", limiter, async (req, res) => {
     try {
         let {email, password} = req.body
 
@@ -93,9 +109,9 @@ router.post("/auth", async (req, res) => {
 
         let user = await Users.findOne({email})
 
-        if (!user) throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, I18n.translate("COMMON.VALIDATION_ERROR", req.user?.language), I18n.translate("USERS.AUTH_ERROR", req.user?.language))
+        if (!user) throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, I18n.translate("COMMON.VALIDATION_ERROR", config.DEFAULT_LANG), I18n.translate("USERS.AUTH_ERROR", config.DEFAULT_LANG))
 
-        if (!user.validPassword(password)) throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, I18n.translate("COMMON.VALIDATION_ERROR", req.user?.language), I18n.translate("USERS.AUTH_ERROR", req.user?.language))
+        if (!user.validPassword(password)) throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, I18n.translate("COMMON.VALIDATION_ERROR", config.DEFAULT_LANG), I18n.translate("USERS.AUTH_ERROR", config.DEFAULT_LANG))
 
         // console.log("aaaa")
         let payload = {
