@@ -3,6 +3,7 @@ const router = express.Router()
 const Response = require("../lib/Response")
 
 const Roles = require("../db/models/Roles");
+const UserRoles = require("../db/models/UserRoles");
 const CustomError = require('../lib/CustomError');
 const Enum = require('../config/Enum');
 const roleprivileges = require("../config/RolePrivileges")
@@ -72,6 +73,13 @@ router.put("/update", auth.checkRoles("role_update"), async (req, res) => {
     let update = {}
     try {
         if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, I18n.translate("COMMON.VALIDATION_ERROR", req.user?.language), I18n.translate("COMMON.FIELD_MUST_BE_FILLED", req.user?.language, ["_id"]))
+
+        let userRole = await UserRoles.findOne({user_id: req.user.id, role_id: body._id})
+
+        if (userRole) {
+            throw new CustomError(Enum.HTTP_CODES.FORBIDDEN, I18n.translate("COMMON.NEED_PERMISSION", req.user?.language), I18n.translate("COMMON.NEED_PERMISSION", req.user?.language))
+            // body.permissions = null
+        }
 
         if (body.permissions && Array.isArray(body.permissions) && body.permissions.length !== 0) {
 
