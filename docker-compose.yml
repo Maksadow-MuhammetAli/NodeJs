@@ -1,0 +1,9 @@
+services:
+  app:
+    image: muhammetali5/first-nodejs-project:latest
+    environment:
+      - CONNECTION_STRING=mongodb://host.docker.internal:27017/nodejs
+      - LOG_LEVEL=debug
+      - FILE_UPLOAD_PATH=\data\uploads\
+    ports:
+      - 3000:3000
